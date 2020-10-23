@@ -7,14 +7,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CafeBoost.Data;
 
 namespace CafeBoost.UI
 {
     public partial class UrunlerForm : Form
     {
-        public UrunlerForm()
+        private readonly KafeVeri db;
+        BindingList<Urun> blUrunler;
+
+        public UrunlerForm(KafeVeri kafeVeri)
         {
             InitializeComponent();
+            db = kafeVeri;
+            blUrunler = new BindingList<Urun>(db.Urunler);
+            dgvUrunler.DataSource = blUrunler;
         }
     }
 }
