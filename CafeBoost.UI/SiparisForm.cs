@@ -15,14 +15,17 @@ namespace CafeBoost.UI
     {
         private readonly KafeVeri db;
         private readonly Siparis siparis;
+        private readonly AnaForm anaForm;
         private readonly BindingList<SiparisDetay> blsiparisDetaylar;
 
-        public SiparisForm(KafeVeri kafeVeri, Siparis siparis)
+        public SiparisForm(KafeVeri kafeVeri, Siparis siparis, AnaForm anaForm)
         {
             db = kafeVeri;
             this.siparis = siparis; //this class seviyesinde ki siparisi kullanır
+            this.anaForm = anaForm;
             InitializeComponent();
             dgvSiparisDetaylar.AutoGenerateColumns = false;
+            MasalariListele();
             UrunleriListele();
             MasaNoGuncelle();
             OdemeTutariGuncelle();
@@ -32,6 +35,19 @@ namespace CafeBoost.UI
             dgvSiparisDetaylar.DataSource = blsiparisDetaylar;
         }
 
+        private void MasalariListele()
+        {
+            cboMasalar.Items.Clear();
+
+            for (int i = 1; i <= db.MasaAdet; i++)
+            {
+                if (!db.AktifSiparisler.Any(x => x.MasaNo == i)) // sınav sorusu
+                {
+                    cboMasalar.Items.Add(i);
+                }
+
+            }
+        }
 
         private void MasaNoGuncelle()
         {
@@ -39,7 +55,7 @@ namespace CafeBoost.UI
             lblMasaNo.Text = siparis.MasaNo.ToString("00");
         }
 
-        private void UrunleriListele() //dropdown list yap
+        private void UrunleriListele() //F4 ten dropdown list yap
         {
             cboUrun.DataSource = db.Urunler;
         }
@@ -112,7 +128,7 @@ namespace CafeBoost.UI
 
         private void btnOdemeAl_Click(object sender, EventArgs e)
         {
-            DialogResult dr = MessageBox.Show("Ödeme alındıysa masa kapatılacaktır.Emin misiniz?","Ödeme Onayı",MessageBoxButtons.YesNo,MessageBoxIcon.Warning,MessageBoxDefaultButton.Button2);
+            DialogResult dr = MessageBox.Show("Ödeme alındıysa masa kapatılacaktır.Emin misiniz?", "Ödeme Onayı", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
 
             if (dr == DialogResult.Yes)
             {
@@ -129,6 +145,17 @@ namespace CafeBoost.UI
             db.GecmisSiparisler.Add(siparis);
             DialogResult = DialogResult.OK;
             Close();
+        }
+
+        private void btnMasaTasi_Click(object sender, EventArgs e)
+        {
+            if (cboMasalar.SelectedIndex < 0) return;
+            int hedef = (int)cboMasalar.SelectedItem;
+            int kaynak = siparis.MasaNo;
+            siparis.MasaNo = hedef;
+            anaForm.MasaTasi(kaynak, hedef);
+            MasaNoGuncelle();
+            MasalariListele();
         }
     }
 }
