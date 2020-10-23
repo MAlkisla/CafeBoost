@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.btnUrunEkle = new System.Windows.Forms.Button();
             this.nudBirimFiyat = new System.Windows.Forms.NumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
@@ -36,8 +37,10 @@
             this.txtUrunAdi = new System.Windows.Forms.TextBox();
             this.Column1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.nudBirimFiyat)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvUrunler)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.SuspendLayout();
             // 
             // btnUrunEkle
@@ -49,6 +52,7 @@
             this.btnUrunEkle.TabIndex = 9;
             this.btnUrunEkle.Text = "EKLE";
             this.btnUrunEkle.UseVisualStyleBackColor = true;
+            this.btnUrunEkle.Click += new System.EventHandler(this.btnUrunEkle_Click);
             // 
             // nudBirimFiyat
             // 
@@ -95,6 +99,8 @@
             this.dgvUrunler.RowHeadersVisible = false;
             this.dgvUrunler.Size = new System.Drawing.Size(363, 328);
             this.dgvUrunler.TabIndex = 10;
+            this.dgvUrunler.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.dgvUrunler_CellValidating);
+            this.dgvUrunler.Validating += new System.ComponentModel.CancelEventHandler(this.dgvUrunler_Validating);
             // 
             // txtUrunAdi
             // 
@@ -115,6 +121,10 @@
             this.Column2.HeaderText = "Birim Fiyatı";
             this.Column2.Name = "Column2";
             // 
+            // errorProvider1
+            // 
+            this.errorProvider1.ContainerControl = this;
+            // 
             // UrunlerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -131,6 +141,7 @@
             this.Text = "UrunlerForm";
             ((System.ComponentModel.ISupportInitialize)(this.nudBirimFiyat)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvUrunler)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -146,5 +157,6 @@
         private System.Windows.Forms.TextBox txtUrunAdi;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column1;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column2;
+        private System.Windows.Forms.ErrorProvider errorProvider1;
     }
 }
