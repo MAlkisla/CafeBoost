@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 
 namespace CafeBoost.Data
 {
+    [Table("Siparisler")]
     public class Siparis
     {
-        public List<SiparisDetay> SiparisDetaylar { get; set; }
+        public int Id { get; set; }
         public int MasaNo { get; set; }
         public DateTime? AcilisZamani { get; set; }
         public DateTime? KapanisZamani { get; set; }
@@ -15,9 +17,10 @@ namespace CafeBoost.Data
         public decimal OdenenTutar { get; set; }
         public string ToplamTutarTL { get { return $"{ToplamTutar():0.00}₺"; } } // => ToplamTutar() + "TL";
 
+        public virtual ICollection<SiparisDetay> SiparisDetaylar { get; set; }
         public Siparis()
         {
-            SiparisDetaylar = new List<SiparisDetay>(); 
+            SiparisDetaylar = new HashSet<SiparisDetay>(); 
             AcilisZamani = DateTime.Now; //başlangıç saati girmene gerek kalmaz. Boş olmasın diye
         }
         public decimal ToplamTutar()

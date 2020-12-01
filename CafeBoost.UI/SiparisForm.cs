@@ -14,14 +14,14 @@ namespace CafeBoost.UI
     public partial class SiparisForm : Form
     {
         public event EventHandler<MasaTasimaEventArgs> MasaTasindi;
-        private readonly KafeVeri db;
+        private readonly CafeBoostContext db;
         private readonly Siparis siparis;
-        private readonly AnaForm anaForm;
+        //private readonly AnaForm anaForm;
         private readonly BindingList<SiparisDetay> blsiparisDetaylar;
 
-        public SiparisForm(KafeVeri kafeVeri, Siparis siparis)
+        public SiparisForm(CafeBoostContext cafeBoostContext, Siparis siparis)
         {
-            db = kafeVeri;
+            db = cafeBoostContext;
             this.siparis = siparis; //this class seviyesinde ki siparisi kullanır
             InitializeComponent();
             dgvSiparisDetaylar.AutoGenerateColumns = false;
@@ -30,7 +30,7 @@ namespace CafeBoost.UI
             MasaNoGuncelle();
             OdemeTutariGuncelle();
 
-            blsiparisDetaylar = new BindingList<SiparisDetay>(siparis.SiparisDetaylar); // list haber vermio binding list değişiklikleri haber verir.
+            blsiparisDetaylar = new BindingList<SiparisDetay>(siparis.SiparisDetaylar.ToList()); // list haber vermio binding list değişiklikleri haber verir.
             blsiparisDetaylar.ListChanged += BlsiparisDetaylar_ListChanged;
             dgvSiparisDetaylar.DataSource = blsiparisDetaylar;
         }
@@ -41,7 +41,7 @@ namespace CafeBoost.UI
 
             for (int i = 1; i <= db.MasaAdet; i++)
             {
-                if (!db.AktifSiparisler.Any(x => x.MasaNo == i)) // sınav sorusu
+                if (!db.Siparisler.Any(x => x.MasaNo == i && x.Durum == SiparisDurum.Aktif)) // sınav sorusu
                 {
                     cboMasalar.Items.Add(i);
                 }
@@ -57,7 +57,7 @@ namespace CafeBoost.UI
 
         private void UrunleriListele() //F4 ten dropdown list yap
         {
-            cboUrun.DataSource = db.Urunler;
+            cboUrun.DataSource = db.Urunler.ToList();
         }
         private void btnEkle_Click(object sender, EventArgs e)
         {
@@ -83,11 +83,20 @@ namespace CafeBoost.UI
 
             SiparisDetay detay = new SiparisDetay()
             {
+                UrunId = secilenUrun.Id,
                 UrunAd = secilenUrun.UrunAd,
                 BirimFiyat = secilenUrun.BirimFiyat,
                 Adet = adet
             };
-            blsiparisDetaylar.Add(detay);
+            siparis.SiparisDetaylar.Add(detay);
+            db.SaveChanges();
+            SiparisDetaylariYenile();
+        }
+
+        private void SiparisDetaylariYenile()
+        {
+            blsiparisDetaylar.Clear();
+            siparis.SiparisDetaylar.ToList().ForEach(x => blsiparisDetaylar.Add(x));
         }
 
         private void BlsiparisDetaylar_ListChanged(object sender, ListChangedEventArgs e)
@@ -141,8 +150,7 @@ namespace CafeBoost.UI
             siparis.OdenenTutar = odenenTutar;
             siparis.KapanisZamani = DateTime.Now;
             siparis.Durum = siparisDurum;
-            db.AktifSiparisler.Remove(siparis);
-            db.GecmisSiparisler.Add(siparis);
+            db.SaveChanges();
             DialogResult = DialogResult.OK;
             Close();
         }
