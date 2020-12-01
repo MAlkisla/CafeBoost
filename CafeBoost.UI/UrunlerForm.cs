@@ -21,6 +21,7 @@ namespace CafeBoost.UI
             InitializeComponent();
             db = cafeBoostContext;
             blUrunler = new BindingList<Urun>(db.Urunler.ToList());
+            dgvUrunler.AutoGenerateColumns = false;
             dgvUrunler.DataSource = blUrunler;
         }
 
@@ -42,11 +43,15 @@ namespace CafeBoost.UI
 
             errorProvider1.SetError(txtUrunAdi, "");
 
-            blUrunler.Add(new Urun() 
+            Urun urun = new Urun() 
             {
                 UrunAd = urunAd, 
                 BirimFiyat = nudBirimFiyat.Value 
-            });
+            };
+
+            db.Urunler.Add(urun);
+            db.SaveChanges();
+            blUrunler.Add(urun);
 
             txtUrunAdi.Clear();
             nudBirimFiyat.Value = 0;
@@ -95,7 +100,7 @@ namespace CafeBoost.UI
             else if (e.ColumnIndex == 1)
             {
                 decimal birimFiyat;
-                bool gecerliMi =decimal.TryParse(e.FormattedValue.ToString(), out birimFiyat);
+                bool gecerliMi =decimal.TryParse(e.FormattedValue.ToString().Replace("₺",""), out birimFiyat);
 
                 if (!gecerliMi || birimFiyat < 0)
                 {
@@ -103,6 +108,7 @@ namespace CafeBoost.UI
                     e.Cancel = true;
                 }
             }
+            
         }
 
         private bool UrunVarMi(string urunAd)
@@ -112,7 +118,25 @@ namespace CafeBoost.UI
 
         private bool BaskaUrunVarMi(string urunAd,Urun urun)
         {
-            return db.Urunler.Any(x => x.UrunAd.Equals(urunAd, StringComparison.CurrentCultureIgnoreCase)&& x != urun);  
+            return db.Urunler.Any(x => x.UrunAd.Equals(urunAd, StringComparison.CurrentCultureIgnoreCase)&& x.Id != urun.Id);  
+        }
+
+        private void dgvUrunler_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
+        {
+            Urun urun = (Urun)e.Row.DataBoundItem;
+            if (urun.siparisDetaylar.Any())
+            {
+                MessageBox.Show("Seçtiğiniz ürün mevcut ve ya geçmiş siparişlerde kullanıldığı için silinemez.");
+                e.Cancel = true;
+                return;
+            }
+            db.Urunler.Remove(urun);
+            db.SaveChanges();
+        }
+
+        private void dgvUrunler_CellValidated(object sender, DataGridViewCellEventArgs e)
+        {
+            db.SaveChanges();
         }
     }
 }

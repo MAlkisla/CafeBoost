@@ -9,6 +9,10 @@ namespace CafeBoost.Data
     [Table("Urunler")]
     public class Urun
     {
+        public Urun()
+        {
+            siparisDetaylar = new HashSet<SiparisDetay>();
+        }
         public int Id { get; set; }
         [Required, MaxLength(100)]
         public string UrunAd { get; set; }
@@ -18,6 +22,6 @@ namespace CafeBoost.Data
         {
             return ($"{UrunAd} ({BirimFiyat}) ₺");
         }
-        public ICollection<SiparisDetay> siparisDetaylar { get; set; }
+        public virtual ICollection<SiparisDetay> siparisDetaylar { get; set; }
     }
 }
